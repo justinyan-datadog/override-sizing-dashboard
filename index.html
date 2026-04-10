@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Override Sizing — API Platform</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #0c0f1a;
+      --surface: #151929;
+      --surface-raised: #1c2137;
+      --border: #262d44;
+      --border-subtle: #1e2540;
+      --text-primary: #e8ecf4;
+      --text-secondary: #8892ab;
+      --text-muted: #5a6580;
+      --accent: #7c6cff;
+      --accent-dim: rgba(124, 108, 255, 0.12);
+      --cyan: #38d9d9;
+      --cyan-dim: rgba(56, 217, 217, 0.12);
+      --amber: #f5a623;
+      --amber-dim: rgba(245, 166, 35, 0.12);
+      --green: #3dd68c;
+      --green-dim: rgba(61, 214, 140, 0.12);
+      --red: #f25f5c;
+      --red-dim: rgba(242, 95, 92, 0.12);
+      --rose: #e05297;
+      --rose-dim: rgba(224, 82, 151, 0.12);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 32px 80px;
+    }
+
+    /* Header */
+    .header { margin-bottom: 40px; }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: #fff;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+    .header .meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 4px;
+    }
+    .header .meta a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .header .meta a:hover { text-decoration: underline; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 100px;
+      letter-spacing: 0.02em;
+    }
+    .pill-live {
+      background: var(--green-dim); color: var(--green);
+    }
+    .pill-live::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* KPI strip */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1px;
+      background: var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .kpi {
+      background: var(--surface);
+      padding: 24px 20px;
+      text-align: center;
+    }
+    .kpi:first-child { border-radius: 12px 0 0 12px; }
+    .kpi:last-child { border-radius: 0 12px 12px 0; }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .kpi-value.accent { color: var(--accent); }
+    .kpi-value.cyan { color: var(--cyan); }
+    .kpi-value.amber { color: var(--amber); }
+    .kpi-value.green { color: var(--green); }
+    .kpi-value.red { color: var(--red); }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Grid layout */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .span-full { grid-column: 1 / -1; }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+    .tag {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .tag-key { background: var(--accent-dim); color: var(--accent); }
+    .tag-trend { background: var(--cyan-dim); color: var(--cyan); }
+    .tag-risk { background: var(--red-dim); color: var(--red); }
+    .tag-decision { background: var(--amber-dim); color: var(--amber); }
+
+    /* Horizontal bar chart */
+    .hbar { display: flex; flex-direction: column; gap: 10px; }
+    .hbar-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 56px 56px 56px;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .hbar-label {
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .hbar-track {
+      height: 24px;
+      background: var(--surface-raised);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .hbar-fill {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .hbar-fill.merged { background: linear-gradient(90deg, var(--accent), #9585ff); }
+    .hbar-fill.rejected { background: var(--red); opacity: 0.8; }
+    .hbar-stacked {
+      height: 100%;
+      display: flex;
+    }
+    .hbar-stacked .seg-merged { background: var(--accent); border-radius: 4px 0 0 4px; }
+    .hbar-stacked .seg-rejected { background: var(--red); opacity: 0.7; }
+    .hbar-num {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      text-align: right;
+      font-size: 12px;
+    }
+    .hbar-num.merged-n { color: var(--accent); }
+    .hbar-num.rejected-n { color: var(--red); }
+    .hbar-num.total-n { color: var(--text-secondary); }
+    .hbar-legend {
+      display: flex; gap: 16px;
+      margin-bottom: 14px;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .hbar-legend span { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+    .legend-dot.merged { background: var(--accent); }
+    .legend-dot.rejected { background: var(--red); opacity: 0.7; }
+
+    /* Stat table (for percentile + tier coverage) */
+    .stat-list { display: flex; flex-direction: column; gap: 0; }
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 14px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--text-secondary); font-weight: 500; }
+    .stat-row .value {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .stat-row .value.highlight { color: var(--cyan); }
+
+    /* Tier coverage visual */
+    .tier-coverage { display: flex; flex-direction: column; gap: 14px; }
+    .tier-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 56px;
+      align-items: center;
+      gap: 12px;
+    }
+    .tier-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .tier-track {
+      height: 32px;
+      background: var(--surface-raised);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+    .tier-fill {
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      transition: width 0.8s ease;
+    }
+    .tier-pct {
+      font-size: 15px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+    .tier-row.recommended .tier-label { color: var(--cyan); }
+    .tier-row.recommended .tier-pct { color: var(--cyan); }
+    .tier-row.recommended .tier-fill { background: linear-gradient(90deg, var(--cyan), #45e0c0); }
+    .tier-row:not(.recommended) .tier-fill { background: var(--accent); opacity: 0.6; }
+    .tier-callout {
+      display: flex; gap: 12px; margin-top: 8px;
+      padding: 14px 16px;
+      background: var(--cyan-dim);
+      border-radius: 8px;
+      border-left: 3px solid var(--cyan);
+      font-size: 13px; color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .tier-callout strong { color: var(--cyan); }
+
+    /* Volume timeline */
+    .vol-timeline {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 160px;
+      padding-top: 8px;
+    }
+    .vol-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .vol-stack {
+      width: 100%;
+      max-width: 48px;
+      display: flex;
+      flex-direction: column-reverse;
+      border-radius: 4px 4px 0 0;
+      overflow: hidden;
+    }
+    .vol-seg {
+      width: 100%;
+      transition: height 0.5s ease;
+    }
+    .vol-seg.m { background: var(--accent); }
+    .vol-seg.r { background: var(--red); opacity: 0.7; }
+    .vol-month {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .vol-total {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .vol-spike {
+      position: absolute;
+      top: -4px;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--amber);
+      white-space: nowrap;
+    }
+
+    /* Quarterly table */
+    .qtable {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .qtable th {
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .qtable th:not(:first-child) { text-align: right; }
+    .qtable td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+    .qtable td:not(:first-child) {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .qtable tr:last-child td { border-bottom: none; }
+    .qtable tr.highlight td { color: var(--text-primary); }
+    .qtable tr.highlight td:first-child { color: var(--cyan); }
+    .change-up {
+      display: inline-block;
+      font-size: 11px; font-weight: 700;
+      color: var(--red); background: var(--red-dim);
+      padding: 2px 6px; border-radius: 4px;
+      margin-left: 6px;
+    }
+
+    /* DC distribution */
+    .dc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .dc-card {
+      text-align: center;
+      padding: 16px 8px;
+      background: var(--surface-raised);
+      border-radius: 8px;
+    }
+    .dc-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .dc-val {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .dc-pct {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Section divider */
+    .divider {
+      border: none;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 32px 0;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 40px;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .kpi-strip { grid-template-columns: repeat(3, 1fr); }
+      .kpi:first-child { border-radius: 12px 0 0 0; }
+      .kpi:nth-child(3) { border-radius: 0 12px 0 0; }
+      .kpi:last-child { border-radius: 0 0 12px 0; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hbar-row { grid-template-columns: 54px 1fr 44px 44px 44px; gap: 8px; }
+    }
+    @media (max-width: 600px) {
+      .page { padding: 24px 16px 60px; }
+      .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+      .kpi:first-child { border-radius: 12px 0 0 0; }
+      .kpi:nth-child(2) { border-radius: 0 12px 0 0; }
+      .dc-grid { grid-template-columns: repeat(2, 1fr); }
+      .vol-timeline { height: 120px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="header">
+      <div class="header-top">
+        <div class="logo-mark">RL</div>
+        <h1>Rate Limit Override Sizing</h1>
+      </div>
+      <div class="meta">
+        <span>API Platform</span>
+        <span>April 8, 2026</span>
+        <span class="pill pill-live">Live Data</span>
+        <a href="https://app.datadoghq.com/notebook/14227103">Source Notebook</a>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="kpi-strip">
+      <div class="kpi">
+        <div class="kpi-value accent">710</div>
+        <div class="kpi-label">External Proposals</div>
+        <div class="kpi-sub">578 merged, 126 rejected</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value cyan">2.2x</div>
+        <div class="kpi-label">Median Override</div>
+        <div class="kpi-sub">Merged increases only</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value green">75%</div>
+        <div class="kpi-label">Covered at 5x Tier</div>
+        <div class="kpi-sub">304 merged increases</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value amber">18%</div>
+        <div class="kpi-label">Rejection Rate</div>
+        <div class="kpi-sub">126 of 710 proposals</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-value red">+73%</div>
+        <div class="kpi-label">Q1 vs Q4 Growth</div>
+        <div class="kpi-sub">291 vs 168 requests</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Size distribution + Percentile stats -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Override Size by Multiplier</div>
+          <span class="tag tag-key">Key</span>
+        </div>
+        <div class="hbar-legend">
+          <span><div class="legend-dot merged"></div>Merged</span>
+          <span><div class="legend-dot rejected"></div>Rejected</span>
+        </div>
+        <div class="hbar">
+          <div class="hbar-row">
+            <div class="hbar-label">1-2x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:83.5%"></div><div class="seg-rejected" style="width:14.4%"></div></div></div>
+            <div class="hbar-num merged-n">81</div>
+            <div class="hbar-num rejected-n">14</div>
+            <div class="hbar-num total-n">97</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">2-3x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:85.0%"></div><div class="seg-rejected" style="width:12.1%"></div></div></div>
+            <div class="hbar-num merged-n">91</div>
+            <div class="hbar-num rejected-n">13</div>
+            <div class="hbar-num total-n">107</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">3-5x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:73.7%"></div><div class="seg-rejected" style="width:26.3%"></div></div></div>
+            <div class="hbar-num merged-n">42</div>
+            <div class="hbar-num rejected-n">15</div>
+            <div class="hbar-num total-n">57</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">5-10x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:63.4%"></div><div class="seg-rejected" style="width:34.1%"></div></div></div>
+            <div class="hbar-num merged-n">26</div>
+            <div class="hbar-num rejected-n">14</div>
+            <div class="hbar-num total-n">41</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">10-20x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:60.0%"></div><div class="seg-rejected" style="width:40.0%"></div></div></div>
+            <div class="hbar-num merged-n">18</div>
+            <div class="hbar-num rejected-n">12</div>
+            <div class="hbar-num total-n">30</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">20-50x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:70.3%"></div><div class="seg-rejected" style="width:29.7%"></div></div></div>
+            <div class="hbar-num merged-n">26</div>
+            <div class="hbar-num rejected-n">11</div>
+            <div class="hbar-num total-n">37</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">50-100x</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:44.4%"></div><div class="seg-rejected" style="width:55.6%"></div></div></div>
+            <div class="hbar-num merged-n">8</div>
+            <div class="hbar-num rejected-n">10</div>
+            <div class="hbar-num total-n">18</div>
+          </div>
+          <div class="hbar-row">
+            <div class="hbar-label">100x+</div>
+            <div class="hbar-track"><div class="hbar-stacked"><div class="seg-merged" style="width:60.0%"></div><div class="seg-rejected" style="width:40.0%"></div></div></div>
+            <div class="hbar-num merged-n">12</div>
+            <div class="hbar-num rejected-n">8</div>
+            <div class="hbar-num total-n">20</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Multiplier Distribution (Merged)</div>
+          </div>
+          <div class="stat-list">
+            <div class="stat-row">
+              <span class="label">P25</span>
+              <span class="value">1.7x</span>
+            </div>
+            <div class="stat-row">
+              <span class="label">Median (P50)</span>
+              <span class="value highlight">2.2x</span>
+            </div>
+            <div class="stat-row">
+              <span class="label">P75</span>
+              <span class="value">6.0x</span>
+            </div>
+            <div class="stat-row">
+              <span class="label">P90</span>
+              <span class="value">33.3x</span>
+            </div>
+            <div class="stat-row">
+              <span class="label">P95</span>
+              <span class="value">85.7x</span>
+            </div>
+            <div class="stat-row">
+              <span class="label">Max</span>
+              <span class="value" style="color:var(--red)">900.0x</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="flex:0; padding:16px 24px;">
+          <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+            <strong style="color:var(--amber)">Note:</strong> All-status median is <strong style="color:var(--text-primary)">3.0x</strong> vs merged-only <strong style="color:var(--text-primary)">2.2x</strong> — larger asks are rejected more often, so tier coverage numbers are slightly optimistic.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier Coverage -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div class="card-title">Tier Coverage — What % of Merged Overrides Each Tier Satisfies</div>
+        <span class="tag tag-decision">Decision Input</span>
+      </div>
+      <div class="tier-coverage">
+        <div class="tier-row">
+          <div class="tier-label">2x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:50%">50%</div></div>
+          <div class="tier-pct">50%</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-label">3x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:59%">59%</div></div>
+          <div class="tier-pct">59%</div>
+        </div>
+        <div class="tier-row recommended">
+          <div class="tier-label">5x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:75%">75%</div></div>
+          <div class="tier-pct">75%</div>
+        </div>
+        <div class="tier-row recommended">
+          <div class="tier-label">10x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:83%">83%</div></div>
+          <div class="tier-pct">83%</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-label">20x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:88%">88%</div></div>
+          <div class="tier-pct">88%</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-label">50x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:94%">94%</div></div>
+          <div class="tier-pct">94%</div>
+        </div>
+        <div class="tier-row">
+          <div class="tier-label">100x</div>
+          <div class="tier-track"><div class="tier-fill" style="width:96%">96%</div></div>
+          <div class="tier-pct">96%</div>
+        </div>
+      </div>
+      <div class="tier-callout">
+        <strong>→</strong>
+        <span>A <strong>5x tier</strong> satisfies 3 out of 4 merged asks. A <strong>10x tier</strong> satisfies &gt;4 out of 5. The remaining 17% above 10x is the custom zone.</span>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Volume timeline + Quarterly -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Monthly Override Volume</div>
+          <span class="tag tag-trend">Trend</span>
+        </div>
+        <div class="hbar-legend">
+          <span><div class="legend-dot merged"></div>Merged</span>
+          <span><div class="legend-dot rejected"></div>Rejected</span>
+        </div>
+        <div class="vol-timeline">
+          <div class="vol-col">
+            <div class="vol-total">2</div>
+            <div class="vol-stack" style="height:1.6%"><div class="vol-seg m" style="height:100%"></div></div>
+            <div class="vol-month">Jun</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">49</div>
+            <div class="vol-stack" style="height:40.5%"><div class="vol-seg m" style="height:79.6%"></div><div class="vol-seg r" style="height:20.4%"></div></div>
+            <div class="vol-month">Jul</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">104</div>
+            <div class="vol-stack" style="height:86%"><div class="vol-seg m" style="height:81.7%"></div><div class="vol-seg r" style="height:18.3%"></div></div>
+            <div class="vol-month">Aug</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">72</div>
+            <div class="vol-stack" style="height:59.5%"><div class="vol-seg m" style="height:80.6%"></div><div class="vol-seg r" style="height:19.4%"></div></div>
+            <div class="vol-month">Sep</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">44</div>
+            <div class="vol-stack" style="height:36.4%"><div class="vol-seg m" style="height:84.1%"></div><div class="vol-seg r" style="height:15.9%"></div></div>
+            <div class="vol-month">Oct</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">51</div>
+            <div class="vol-stack" style="height:42.1%"><div class="vol-seg m" style="height:84.3%"></div><div class="vol-seg r" style="height:15.7%"></div></div>
+            <div class="vol-month">Nov</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">73</div>
+            <div class="vol-stack" style="height:60.3%"><div class="vol-seg m" style="height:80.8%"></div><div class="vol-seg r" style="height:19.2%"></div></div>
+            <div class="vol-month">Dec</div>
+          </div>
+          <div class="vol-col" style="position:relative;">
+            <div class="vol-spike">85 from US5</div>
+            <div class="vol-total">121</div>
+            <div class="vol-stack" style="height:100%"><div class="vol-seg m" style="height:86.8%"></div><div class="vol-seg r" style="height:13.2%"></div></div>
+            <div class="vol-month">Jan</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">100</div>
+            <div class="vol-stack" style="height:82.6%"><div class="vol-seg m" style="height:72.0%"></div><div class="vol-seg r" style="height:28.0%"></div></div>
+            <div class="vol-month">Feb</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">70</div>
+            <div class="vol-stack" style="height:57.9%"><div class="vol-seg m" style="height:78.6%"></div><div class="vol-seg r" style="height:12.9%"></div></div>
+            <div class="vol-month">Mar</div>
+          </div>
+          <div class="vol-col">
+            <div class="vol-total">24</div>
+            <div class="vol-stack" style="height:19.8%; opacity:0.5;"><div class="vol-seg m" style="height:95.8%"></div><div class="vol-seg r" style="height:4.2%"></div></div>
+            <div class="vol-month" style="color:var(--text-muted); font-style:italic">Apr*</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quarterly Summary</div>
+          </div>
+          <table class="qtable">
+            <thead>
+              <tr><th>Quarter</th><th>Total</th><th>Merged</th><th>Rej%</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Q3 2025</td><td>225</td><td>182</td><td>19%</td></tr>
+              <tr><td>Q4 2025</td><td>168</td><td>139</td><td>17%</td></tr>
+              <tr class="highlight"><td>Q1 2026</td><td>291 <span class="change-up">+73%</span></td><td>232</td><td>18%</td></tr>
+              <tr><td>Q2 2026*</td><td>24</td><td>23</td><td>4%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Volume by Datacenter</div>
+          </div>
+          <div class="dc-grid">
+            <div class="dc-card">
+              <div class="dc-name">US1</div>
+              <div class="dc-val" style="color:var(--accent)">285</div>
+              <div class="dc-pct">40%</div>
+            </div>
+            <div class="dc-card">
+              <div class="dc-name">US5</div>
+              <div class="dc-val" style="color:var(--cyan)">206</div>
+              <div class="dc-pct">29%</div>
+            </div>
+            <div class="dc-card">
+              <div class="dc-name">EU1</div>
+              <div class="dc-val" style="color:var(--amber)">167</div>
+              <div class="dc-pct">24%</div>
+            </div>
+            <div class="dc-card">
+              <div class="dc-name">US3</div>
+              <div class="dc-val" style="color:var(--green)">52</div>
+              <div class="dc-pct">7%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Data from Lambo API &middot; <code style="font-size:11px; color:var(--text-muted)">rate_limit_override_proposals + rate_limits</code> &middot; US1 + US3 + US5 + EU1 &middot; 790 total &rarr; 710 external &middot;
+      <a href="https://app.datadoghq.com/notebook/14227103">View full notebook</a>
+    </div>
+
+  </div>
+</body>
+</html>
